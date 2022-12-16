@@ -1,0 +1,24 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        
+        <div class="top-row px-4">
+           <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+               <NotAuthorized><a href="/login" target="_blank">Login</a></NotAuthorized>
+               <Authorized>
+                   Xin chào bạn  @context.User.Identity.Name
+                   <a href="/logout">Logout</a>
+               </Authorized>
+           </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>

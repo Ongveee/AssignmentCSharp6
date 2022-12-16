@@ -1,0 +1,39 @@
+﻿@page "/NganhUpdate/{MaNganh}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject INganhApi _NganhApi
+@inject NavigationManager Navigation
+
+<h3>Sửa @_nganh.MaNganh</h3>
+
+<EditForm Model="_nganh" OnValidSubmit="submitTask">
+    
+    <div class="mb-3">
+        <label class="form-label" for="">Tên ngành</label>
+        <InputText class="form-control" @bind-Value="_nganh.TenNganh" placeholder="Nhập tên ngành"></InputText>
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public string MaNganh { get; set; }
+    Nganh _nganh = new Nganh();
+    protected override async Task OnInitializedAsync()
+    {
+        var info = await _NganhApi.GetById(MaNganh);
+        _nganh.MaNganh = info.MaNganh;
+        _nganh.TenNganh = info.TenNganh;
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _NganhApi.Update(MaNganh,_nganh);
+        if (result)
+        {
+            Navigation.NavigateTo("/TruongIndex");
+        }
+
+    }
+}

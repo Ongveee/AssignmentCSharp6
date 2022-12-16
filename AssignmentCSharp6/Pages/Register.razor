@@ -1,0 +1,63 @@
+﻿@page "/register"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject HttpClient Http
+@inject GetRole _GetRole;
+
+<h3>Register</h3>
+
+<p>@message</p>
+<p><a href="/login">@login</a></p>
+
+<EditForm Model="reg" OnValidSubmit="OnValid" style="max-width:500px;">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-2">
+        <InputText class="form-control" @bind-Value="reg.Username" placeholder="Nhập username"></InputText>
+    </div>
+    <div class="mb-2">
+        <InputText type="password" class="form-control" @bind-Value="reg.Password" placeholder="Nhập mật khảu"></InputText>
+    </div>
+    <div class="mb-2">
+        <label class="form-label" for="">Môn học</label>
+        <InputSelect  class="form-control" type="button" @bind-Value="reg.RoleId">
+            <option value="">Uỷ quyền 1</option>
+            @if (_roles is not null)
+            {
+                @foreach (var item in _roles)
+                {
+                    <option value="@item.RoleId">@item.RoleName</option>
+                }
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-2 text-right">
+        <button class="btn btn-secondary" disabled="@isDisabled">Đăng ký</button>
+    </div>
+</EditForm>
+
+@code {
+    Account reg = new Account();
+    string message = string.Empty, login = string.Empty;
+    bool isDisabled = false;
+    List<Role> _roles;
+    protected override async Task OnInitializedAsync()
+    {
+        _roles = await _GetRole.GetList();
+    }
+
+    private async Task OnValid()
+    {
+        isDisabled = true;
+        using (var msg = await Http.PostAsJsonAsync("auth/register", reg, System.Threading.CancellationToken.None))
+        {
+            if (msg.IsSuccessStatusCode)
+            {
+               message = " Please LOGIN to continue.";
+               login = "Click here to LOGIN.";
+            }
+            else
+                    isDisabled = false;
+        }
+    }
+    }

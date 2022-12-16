@@ -1,0 +1,36 @@
+﻿@page "/NganhCreate"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject INganhApi _NganhApi
+@inject NavigationManager Navigation
+
+<h3>Tạo mới</h3>
+
+<EditForm Model="_nganh" OnValidSubmit="submitTask">
+    <div class="mb-3">
+        <label class="form-label" for="">Mã ngành</label>
+        <InputText  class="form-control" @bind-Value="_nganh.MaNganh" placeholder="Nhập mã ngành"></InputText>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Tên ngành</label>
+        <InputText class="form-control" @bind-Value="_nganh.TenNganh" placeholder="Nhập tên ngành"></InputText>
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    
+    Nganh _nganh = new Nganh();
+
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _NganhApi.Create(_nganh);
+        if (result)
+        {
+            Navigation.NavigateTo("/NganhIndex");
+        }
+
+    }
+}

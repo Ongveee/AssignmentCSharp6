@@ -1,0 +1,64 @@
+﻿@page "/LopIndex"
+@using AssignmentCSharp6.Service
+@using BlazorModel.Models
+@inject HttpClient Http
+@inject IMonHocAPI MonHocApi
+<PageTitle>Lớp</PageTitle>
+<Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+    <NotAuthorized>
+        <h1>Bạn phải đăng nhập</h1>
+        <a href="/login" target="_blank">Login</a>
+    </NotAuthorized>
+    <Authorized>
+<h1>Lớp</h1>
+
+<div class="col pt-4">
+    <a href="/LopCreate" class="btn btn-success">Tạo</a>
+</div>
+
+@if (_lops == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã lớp</th>
+                <th>Tên lớp</th>
+                <th>Môn học</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in _lops)
+            {
+                <tr>
+                    <td>@x.MaLop</td>
+                    <td>@x.TenLop</td>
+                    <td>@_monHocs.Where(c=>c.MaMh == x.MaMh).Select(c=>c.TenMh).FirstOrDefault()</td>
+                    <td>
+                        <a href="/LopUpdate/@x.MaLop" class="btn btn-primary">Cập nhật</a>
+                         <a href="/LopDelete/@x.MaLop" class="btn btn-danger">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+</Authorized>
+</Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+
+@code {
+
+    [Inject] private ILopApi _LopApi { get; set; }
+    private List<Lop> _lops;
+    List<MonHoc> _monHocs;
+    protected override async Task OnInitializedAsync()
+    {
+        _lops = await _LopApi.GetList();
+        _monHocs = await MonHocApi.GetList();
+    }
+
+}

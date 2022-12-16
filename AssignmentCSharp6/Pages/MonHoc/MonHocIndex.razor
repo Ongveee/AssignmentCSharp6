@@ -1,0 +1,60 @@
+﻿@page "/MonHocIndex"
+@using AssignmentCSharp6.Service
+@using BlazorModel.Models
+@inject HttpClient Http
+
+<PageTitle>Môn học</PageTitle>
+<Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+    <NotAuthorized>
+        <h1>Bạn phải đăng nhập</h1>
+        <a href="/login" target="_blank">Login</a>
+    </NotAuthorized>
+    <Authorized>
+<h1>Môn học</h1>
+
+<div class="col pt-4">
+    <a href="/MonHocCreate" class="btn btn-success">Tạo</a>
+</div>
+
+@if (_monHocs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã môn học</th>
+                <th>Tên môn học</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in _monHocs)
+            {
+                <tr>
+                    <td>@x.MaMh</td>
+                    <td>@x.TenMh</td>
+                    <td>
+                        <a href="/MonHocUpdate/@x.MaMh" class="btn btn-primary">Cập nhật</a>
+                         <a href="/MonHocDelete/@x.MaMh" class="btn btn-danger">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+</Authorized>
+</Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+
+@code {
+
+    [Inject] private IMonHocAPI _MonHocApi { get; set; }
+    private List<MonHoc> _monHocs;
+    protected override async Task OnInitializedAsync()
+    {
+        _monHocs = await _MonHocApi.GetList();
+    }
+
+}

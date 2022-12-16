@@ -1,0 +1,13 @@
+﻿@page "/logout"
+@using AssignmentCSharp6.Service
+@using BlazorModel.Models
+@inject NavigationManager _NavigationManager
+@inject IAuthServicecs authService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await authService.Logout();
+        _NavigationManager.NavigateTo("/");
+    }
+}

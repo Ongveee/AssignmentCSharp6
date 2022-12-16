@@ -1,0 +1,107 @@
+﻿@page "/SinhVienUpdate/{MaSV}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject ITruongApi _TruongApi
+@inject INganhApi NganhApi;
+@inject ISinhVienAPI SinhVienApi
+@inject NavigationManager Navigation
+
+<h3>Sửa @_sinhVien.TenSv</h3>
+
+<EditForm Model="_sinhVien" OnSubmit="submitTask">
+    <DataAnnotationsValidator/>
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label" for="">Tên sinh viên</label>
+        <InputText class="form-control" @bind-Value="_sinhVien.TenSv" placeholder="Nhập tên sinh viên"></InputText>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Ngày sinh</label>
+        <InputDate class="form-control"  @bind-Value="_sinhVien.NgaySinh" placeholder="Nhập ngày sinh"></InputDate>
+    </div>
+    <div class="mb-3 input-group" style="width: 70%">
+            <label class="input-group-text">Giới tính</label>
+            <InputSelect TValue="bool" class="form-select" @bind-Value="_sinhVien.GioiTinh" >
+                <option selected hidden>Chọn giới tính</option>
+                <option value="true">Nam</option>
+                <option value="false">Nữ</option>
+            </InputSelect>
+    </div>
+    <div class="mb-3 input-group" style="width: 70%">
+        <label class="input-group-text">Trường</label>
+        <InputSelect TValue="string" class="form-select" @bind-Value="_sinhVien.MaTruong">
+            <option selected hidden>Chọn trường</option>
+            @if (_truongs is not null)
+            {
+                @foreach (var item in _truongs)
+                {
+                    <option value="@item.MaTruong">@item.TenTruong</option>
+                }
+            }
+
+        </InputSelect>
+    </div>
+    <div class="mb-3 input-group"style="width: 70%">
+        <label class="input-group-text" for="">Ngành</label>
+        <InputSelect TValue="string"  class="form-select" @bind-Value="_sinhVien.MaNganh">
+            <option selected hidden>Chọn ngành</option>
+            @if (_nganhs is not null)
+            {
+                @foreach (var item in _nganhs)
+                {
+                    <option value="@item.MaNganh">@item.TenNganh</option>
+                }
+            }
+
+        </InputSelect>
+    </div>
+    <div class="input-group mb-3" style="width: 70%">
+        <InputFile OnChange="OnChange" class="form-control"></InputFile>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+@code {
+    [Parameter] 
+    public string MaSV { get; set; }
+    SinhVien _sinhVien = new SinhVien();
+    List<Truong> _truongs;
+    List<Nganh> _nganhs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _truongs = await _TruongApi.GetList();
+        _nganhs = await NganhApi.GetList();
+        var info = await SinhVienApi.GetById(Convert.ToInt32(MaSV));
+        _sinhVien.MaSv = Convert.ToInt32(MaSV);
+        _sinhVien.TenSv = info.TenSv;
+        _sinhVien.NgaySinh = info.NgaySinh;
+        _sinhVien.GioiTinh = info.GioiTinh;
+        _sinhVien.MaTruong = info.MaTruong;
+        _sinhVien.MaNganh = info.MaNganh;
+        _sinhVien.Anh = info.Anh;
+
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await SinhVienApi.Update(Convert.ToInt32(MaSV),_sinhVien);
+        if (result)
+        {
+            Navigation.NavigateTo("/SinhVienIndex");
+        }
+    }
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[resizedFile.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = resizedFile.OpenReadStream())
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            _sinhVien.Anh = buf;
+        }
+    }
+}

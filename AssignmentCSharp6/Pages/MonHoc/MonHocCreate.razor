@@ -1,0 +1,36 @@
+﻿@page "/MonHocCreate"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject IMonHocAPI _MonHocApi
+@inject NavigationManager Navigation
+
+<h3>Tạo mới</h3>
+
+<EditForm Model="_monHoc" OnValidSubmit="submitTask">
+    <div class="mb-3">
+        <label class="form-label" for="">Mã môn học</label>
+        <InputText  class="form-control" @bind-Value="_monHoc.MaMh" placeholder="Nhập mã ngành"></InputText>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Tên môn học</label>
+        <InputText class="form-control" @bind-Value="_monHoc.TenMh" placeholder="Nhập tên ngành"></InputText>
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    
+    MonHoc _monHoc = new MonHoc();
+
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _MonHocApi.Create(_monHoc);
+        if (result)
+        {
+            Navigation.NavigateTo("/MonHocIndex");
+        }
+
+    }
+}

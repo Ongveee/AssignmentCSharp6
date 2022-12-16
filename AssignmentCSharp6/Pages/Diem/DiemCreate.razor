@@ -1,0 +1,39 @@
+﻿@page "/DiemCreate/{MaSv}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject IDiemApi _DiemApi
+@inject NavigationManager Navigation
+
+<h3>Tạo mới</h3>
+
+<EditForm Model="_diem" OnValidSubmit="submitTask">
+    <div class="mb-3">
+        <label class="form-label" for="">Điểm doc</label>
+        <InputNumber TValue="double" class="form-control" @bind-Value="_diem.DiemDoc" placeholder="Nhập điểm doc"></InputNumber>
+    </div>  
+    <div class="mb-3">
+        <label class="form-label" for="">Điểm presentation</label>
+        <InputNumber TValue="double" class="form-control"  @bind-Value="_diem.DiemPresentation" placeholder="Nhập điểm presentation"></InputNumber>
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public int MaSv { get; set; }
+    Diem _diem = new Diem();
+
+    private async Task submitTask(EditContext context)
+    {
+        _diem.MaSv = MaSv;
+        Convert.ToDouble(_diem.DiemDoc);
+        var result = await _DiemApi.Create(_diem);
+        if (result)
+        {
+            Navigation.NavigateTo("/TruongIndex");
+        }
+
+    }
+}

@@ -1,0 +1,50 @@
+﻿@page "/LopUpdate/{MaLop}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject ILopApi _LopApi
+@inject IMonHocAPI MonHocApi
+@inject NavigationManager Navigation
+
+<h3>Sửa @_lop.MaLop</h3>
+
+<EditForm Model="_lop" OnValidSubmit="submitTask">
+    <div class="mb-3">
+        <label class="form-label" for="">Tên lớp</label>
+        <InputText class="form-control" @bind-Value="_lop.TenLop" placeholder="Nhập tên lớp"></InputText>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Môn học</label>
+        <InputSelect TValue="string" @bind-Value="_lop.MaMh">
+            <option>Chọn môn học</option>
+            @foreach (var item in _monHocs)
+            {
+                <option value="@item.MaMh">@item.TenMh</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public string MaLop { get; set; }
+    Lop _lop = new Lop();
+    List<MonHoc> _monHocs;
+    protected override async Task OnInitializedAsync()
+    {
+        _monHocs = await MonHocApi.GetList();
+        var info = await _LopApi.GetById(MaLop);
+        _lop.TenLop = info.TenLop;
+        _lop.MaMh = info.MaMh;
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _LopApi.Update(MaLop,_lop);
+        if (result)
+        {
+            Navigation.NavigateTo("/LopIndex");
+        }
+
+    }
+}

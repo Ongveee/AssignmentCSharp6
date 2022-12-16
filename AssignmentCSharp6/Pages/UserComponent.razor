@@ -1,0 +1,26 @@
+﻿@inject IJSRuntime jsr
+
+<p>
+    @if (string.IsNullOrEmpty(username))
+    {
+        <span><a href="/register">Đăng ký</a> <a href="/login">Đăng nhập</a></span>
+    }
+    else
+    {
+        <span>Chào, @username <a href="/logout">(Đăng xuất)</a></span>
+    }
+</p>
+
+@code {
+
+    string username = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var userdata = await jsr.InvokeAsync<string>("localStorage.getItem", "user").ConfigureAwait(false);
+        if (!string.IsNullOrWhiteSpace(userdata))
+        {
+            username = userdata.Split(';', 2)[0];
+        }
+    }
+}

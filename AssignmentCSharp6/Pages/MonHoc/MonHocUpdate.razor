@@ -1,0 +1,39 @@
+﻿@page "/MonHocUpdate/{MaMH}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject IMonHocAPI _MonHocApi
+@inject NavigationManager Navigation
+
+<h3>Sửa @_monHoc.MaMh</h3>
+
+<EditForm Model="_monHoc" OnValidSubmit="submitTask">
+    
+    <div class="mb-3">
+        <label class="form-label" for="">Tên ngành</label>
+        <InputText class="form-control" @bind-Value="_monHoc.TenMh" placeholder="Nhập tên ngành"></InputText>
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public string MaMH { get; set; }
+    MonHoc _monHoc = new MonHoc();
+    protected override async Task OnInitializedAsync()
+    {
+        var info = await _MonHocApi.GetById(MaMH);
+        _monHoc.MaMh = info.MaMh;
+        _monHoc.TenMh = info.TenMh;
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _MonHocApi.Update(MaMH,_monHoc);
+        if (result)
+        {
+            Navigation.NavigateTo("/MonHocIndex");
+        }
+
+    }
+}

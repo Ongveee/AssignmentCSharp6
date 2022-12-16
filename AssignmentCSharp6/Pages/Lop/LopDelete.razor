@@ -1,0 +1,43 @@
+﻿@page "/LopDelete/{MaLop}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject ILopApi _LopApi
+@inject IMonHocAPI MonHocApi
+@inject NavigationManager Navigation
+
+<h3>Xoá @_lop.MaLop</h3>
+
+<EditForm Model="_lop" OnValidSubmit="submitTask">
+    <h4>Phần tử này sẽ bị xoá đi:</h4>
+    <div class="mb-3">
+        <label class="form-label" for="">Mã lớp: @_lop.MaLop</label>
+
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Tên lớp: @_lop.TenLop</label>
+    </div>
+
+    <button type="submit" class="btn btn-danger">Đồng ý</button>
+    <a href="/LopIndex/" class="btn btn-primary">Từ chối</a>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public string MaLop{ get; set; }
+    Lop _lop = new Lop();
+    protected override async Task OnInitializedAsync()
+    {
+        var info = await _LopApi.GetById(MaLop);
+        _lop.MaLop= info.MaLop;
+        _lop.TenLop = info.TenLop;
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _LopApi.Delete(MaLop);
+        if (result)
+        {
+            Navigation.NavigateTo("/LopIndex");
+        }
+
+    }
+}

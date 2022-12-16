@@ -1,0 +1,62 @@
+﻿@page "/TruongIndex"
+@using AssignmentCSharp6.Service
+@using BlazorModel.Models
+@inject HttpClient Http
+
+<PageTitle>Trường</PageTitle>
+
+<Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+    <NotAuthorized>
+        <h1>Bạn phải đăng nhập</h1>
+        <a href="/login" target="_blank">Login</a>
+    </NotAuthorized>
+    <Authorized>
+        <h1>Trường</h1>
+
+<div class="col pt-4">
+    <a href="/truongCreate" class="btn btn-success">Tạo</a>
+</div>
+
+@if (_truongs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã trường</th>
+                <th>Tên trường</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in _truongs)
+            {
+                <tr>
+                    <td>@x.MaTruong</td>
+                    <td>@x.TenTruong</td>
+                    <td>
+                        <a href="/truongUpdate/@x.MaTruong" class="btn btn-primary">Cập nhật</a>
+                         <a href="/truongDelete/@x.MaTruong" class="btn btn-danger">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+    </Authorized>
+</Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+
+
+@code {
+
+    [Inject] private ITruongApi _TruongApi { get; set; }
+    private List<Truong> _truongs;
+    protected override async Task OnInitializedAsync()
+    {
+        _truongs = await _TruongApi.GetList();
+    }
+
+}

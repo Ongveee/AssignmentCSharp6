@@ -1,0 +1,66 @@
+﻿@page "/DiemIndex"
+@using AssignmentCSharp6.Service
+@using BlazorModel.Models
+@inject HttpClient Http
+@inject ISinhVienAPI SinhVienApi
+
+<PageTitle>Điểm</PageTitle>
+<Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+    <NotAuthorized>
+        <h1>Bạn phải đăng nhập</h1>
+        <a href="/login" target="_blank">Login</a>
+    </NotAuthorized>
+    <Authorized>
+<h1>Điểm</h1>
+
+
+@if (_diems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã sinh viên</th>
+                <th>Tên sinh viên</th>
+                <th>Điểm Doc</th>
+                <th>Điểm Presentation</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in _diems)
+            {
+                <tr>
+                    <td>@x.MaSv</td>
+                    <td>@_sinhViens.Where(c=>c.MaSv == x.MaSv).Select(c=>c.TenSv).FirstOrDefault()
+                    </td>
+                    <td>@x.DiemDoc</td>
+                    <td>@x.DiemPresentation</td>
+                    <td>
+                        <a href="/DiemCreate/@x.MaSv" class="btn btn-success">Nhập điểm</a>
+                        <a href="/DiemUpdate/@x.MaSv" class="btn btn-primary">Cập nhật</a>
+                        <a href="/DiemDelete/@x.MaSv" class="btn btn-danger">Xoá</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+</Authorized>
+</Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+
+@code {
+
+    [Inject] private IDiemApi _DiemApi { get; set; }
+    private List<Diem> _diems;
+    private List<SinhVien> _sinhViens;
+    protected override async Task OnInitializedAsync()
+    {
+        _diems = await _DiemApi.GetList();
+        _sinhViens = await SinhVienApi.GetList();
+    }
+    
+}

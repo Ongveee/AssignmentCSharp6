@@ -1,0 +1,146 @@
+﻿@page "/SinhVienIndex/"
+@using AssignmentCSharp6.Service
+@using BlazorModel.Models
+@inject HttpClient Http
+@inject ITruongApi TruongApi;
+@inject INganhApi NganhApi;
+@inject ILopApi LopApi;
+<PageTitle>Sinh viên</PageTitle>
+
+<Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+    <NotAuthorized>
+        <h4>Bạn phải đăng nhập để sử dụng chức năng này</h4>
+        <a href="/login">Đăng nhập</a>
+    </NotAuthorized>
+
+    <Authorized>
+        <h1>Sinh viên</h1>
+
+        <div class="col pt-4">
+            <a href="/SinhVienCreate" class="btn btn-success">Tạo</a>
+        </div>
+
+        @if (_sinhViens == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <div class="input-group pt-4" style="width: 30%">
+                <input class="form-control" type="text" @bind-value="searching"></input>
+                <button class="btn btn-outline-secondary" @onclick="SearchingOnChange">Tìm kiếm</button>
+            </div>
+            <div class="input-group pt-4" style="width: 30%">
+                <div class="input-group mb-3">
+                    <label class="input-group-text">Tìm kiếm theo</label>
+                    <select class="form-select" @bind="dropdown">
+                        <option value="">Chọn phần tử để lọc</option>
+                        <option value="1">Theo mã SV</option>
+                        <option value="2" selected>Theo tên SV</option>
+                        <option value="3">Theo trường</option>
+                        <option value="4">Theo ngành</option>
+                    </select>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mã sinh viên</th>
+                        <th>Tên sinh viên</th>
+                        <th class="col-1">Ảnh</th>
+                        <th>Ngày sinh</th>
+                        <th>Giới tính</th>
+                        <th>Trường</th>
+                        <th>Ngành</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var x in _sinhViens)
+                    {
+                        <tr>
+                            <td>@x.MaSv</td>
+                            <td>@x.TenSv</td>
+                            <td>
+                                @{
+                                    var base64 = Convert.ToBase64String(x.Anh);
+                                    var imgSrc = String.Format("data:image/jpg;base64,{0}", base64);
+                                }
+                                <img src="@imgSrc" width="90%" />
+                            </td>
+                            <td>
+                                @{
+                                    var date = x.NgaySinh.ToString("dd/MM/yyyy");
+                                }
+                                @date
+                            </td>
+                            <td>
+                                @(x.GioiTinh == true ? "Nam" : "Nữ")
+                            </td>
+                            <td>@_truongs.Where(c=>c.MaTruong == x.MaTruong).Select(c=>c.TenTruong).FirstOrDefault()</td>
+                            <td>@_nganhs.Where(c=>c.MaNganh == x.MaNganh).Select(c=>c.TenNganh).FirstOrDefault()</td>
+                            <td>
+                                <a href="/SinhVienUpdate/@x.MaSv" class="btn btn-primary">Cập nhật</a>
+                                <a href="/DiemIndex/@x.MaSv/@x.MaNganh" class="btn btn-primary">Xem điểm</a>
+                                <a href="/SinhVienDelete/@x.MaSv" class="btn btn-danger">Xoá</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </Authorized>
+</Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+
+
+@code {
+
+    [Inject] private ISinhVienAPI _SinhVienApi { get; set; }
+    private List<SinhVien> _sinhViens;
+    List<Truong> _truongs;
+    List<Nganh> _nganhs;
+    List<Lop> _lops;
+    public string searching;
+    public string dropdown;
+    protected override async Task OnInitializedAsync()
+    {
+        _sinhViens = await _SinhVienApi.GetList();
+        _truongs = await TruongApi.GetList();
+        _nganhs = await NganhApi.GetList();
+        _lops = await LopApi.GetList();
+    }
+    private async Task SearchingOnChange(EventArgs e)
+    {
+
+        await OnInitializedAsync();
+        if (string.IsNullOrEmpty(dropdown) || string.IsNullOrEmpty(searching))
+    {
+            await OnInitializedAsync();
+            return;
+        }
+        else
+        {
+            switch (dropdown)
+            {
+                case "1":
+                    _sinhViens = _sinhViens.Where(c => c.MaSv == Convert.ToInt32(searching)).ToList();
+                    break;
+                case "2":
+                    _sinhViens = _sinhViens.Where(c => c.TenSv.Contains(searching)).ToList();
+                    break;
+                case "3":
+                    _sinhViens = _sinhViens.Where(c => c.MaTruong == _truongs.Where(c => c.TenTruong.Contains(searching)).Select(d => d.MaTruong).FirstOrDefault()).ToList();
+                    break;
+                case "4":
+                    _sinhViens = _sinhViens.Where(c => c.MaNganh == _nganhs.Where(c => c.TenNganh.Contains(searching)).Select(d => d.MaNganh).FirstOrDefault()).ToList();
+                    break;
+                default:
+                    await OnInitializedAsync();
+                    break;
+
+            }
+        }
+    }
+
+
+  }

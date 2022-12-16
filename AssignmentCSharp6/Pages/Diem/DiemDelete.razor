@@ -1,0 +1,45 @@
+﻿@page "/DiemDelete/{MaSv}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject IDiemApi _DiemApi
+@inject ISinhVienAPI SinhVienApi;
+@inject NavigationManager Navigation
+
+<h3>Xoá điẻm @_sinhVien.TenSv</h3>
+
+<EditForm Model="_diem" OnValidSubmit="submitTask">
+    <h4>Phần tử này sẽ bị xoá đi:</h4>
+    <div class="mb-3">
+        <label class="form-label" for="">Điểm doc: @_diem.DiemDoc</label>
+
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Điểm presentation: @_diem.DiemPresentation</label>
+    </div>
+
+    <button type="submit" class="btn btn-danger">Đồng ý</button>
+    <a href="/DiemIndex/" class="btn btn-primary">Từ chối</a>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public int MaSv { get; set; }
+    Diem _diem = new Diem();
+    SinhVien _sinhVien = new SinhVien();
+    protected override async Task OnInitializedAsync()
+    {
+        var info = await _DiemApi.GetById(MaSv);
+        _sinhVien = await SinhVienApi.GetById(MaSv);
+        _diem.DiemDoc = info.DiemDoc;
+        _diem.DiemPresentation = info.DiemPresentation;
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _DiemApi.Delete(MaSv);
+        if (result)
+        {
+            Navigation.NavigateTo("/DiemIndex");
+        }
+
+    }
+}

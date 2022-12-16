@@ -1,0 +1,45 @@
+﻿@page "/DiemUpdate/{MaSv}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject IDiemApi _DiemApi
+@inject ISinhVienAPI SinhVienApi;
+@inject NavigationManager Navigation
+
+<h3>Sửa @_sinhVien.TenSv</h3>
+
+<EditForm Model="_diem" OnValidSubmit="submitTask">
+    <div class="mb-3">
+        <label class="form-label" for="">Điểm doc</label>
+        <InputNumber TValue="double" class="form-control" @bind-Value="_diem.DiemDoc" placeholder="Nhập điểm doc"></InputNumber>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Điểm presentation</label>
+        <InputNumber TValue="double" class="form-control"  @bind-Value="_diem.DiemPresentation" placeholder="Nhập điểm presentation"></InputNumber>
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public int MaSv { get; set; }
+    Diem _diem = new Diem();
+    SinhVien _sinhVien = new SinhVien();
+    protected override async Task OnInitializedAsync()
+    {
+        var info = await _DiemApi.GetById(MaSv);
+        _sinhVien = await SinhVienApi.GetById(MaSv);
+        _diem.DiemDoc = info.DiemDoc;
+        _diem.DiemPresentation = info.DiemPresentation;
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _DiemApi.Update(MaSv,_diem);
+        if (result)
+        {
+            Navigation.NavigateTo("/DiemIndex");
+        }
+
+    }
+}

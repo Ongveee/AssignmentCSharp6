@@ -1,0 +1,42 @@
+﻿@page "/truongDelete/{MaTruong}"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject ITruongApi _TruongApi
+@inject NavigationManager Navigation
+
+<h3>Xoá @_truong.MaTruong</h3>
+
+<EditForm Model="_truong" OnValidSubmit="submitTask">
+    <h4>Phần tử này sẽ bị xoá đi:</h4>
+    <div class="mb-3">
+        <label class="form-label" for="">Mã trường: @_truong.MaTruong</label>
+
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Tên trường: @_truong.TenTruong</label>
+    </div>
+
+    <button type="submit" class="btn btn-danger">Đồng ý</button>
+    <a href="/TruongIndex/" class="btn btn-primary">Từ chối</a>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public string MaTruong { get; set; }
+    Truong _truong = new Truong();
+    protected override async Task OnInitializedAsync()
+    {
+        var info = await _TruongApi.GetById(MaTruong);
+        _truong.MaTruong = info.MaTruong;
+        _truong.TenTruong = info.TenTruong;
+    }
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _TruongApi.Delete(MaTruong);
+        if (result)
+        {
+            Navigation.NavigateTo("/TruongIndex");
+        }
+
+    }
+}

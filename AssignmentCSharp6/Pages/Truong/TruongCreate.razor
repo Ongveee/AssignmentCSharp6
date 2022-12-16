@@ -1,0 +1,36 @@
+﻿@page "/truongCreate"
+@using BlazorModel.Models
+@using AssignmentCSharp6.Service
+@inject ITruongApi _TruongApi
+@inject NavigationManager Navigation
+
+<h3>Tạo mới</h3>
+
+<EditForm Model="_truong" OnValidSubmit="submitTask">
+    <div class="mb-3">
+        <label class="form-label" for="">Mã trường</label>
+        <InputText  class="form-control" @bind-Value="_truong.MaTruong" placeholder="Nhập mã trường"></InputText>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="">Tên trường</label>
+        <InputText class="form-control" @bind-Value="_truong.TenTruong" placeholder="Nhập tên trường"></InputText>
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    
+    Truong _truong = new Truong();
+
+    private async Task submitTask(EditContext context)
+    {
+        var result = await _TruongApi.Create(_truong);
+        if (result)
+        {
+            Navigation.NavigateTo("/TruongIndex");
+        }
+
+    }
+}
